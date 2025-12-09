@@ -74,3 +74,23 @@ export async function interpretClusters(
     });
     return response.data;
 }
+
+export interface AnalysisSummaryInput {
+    cluster1_size: number;
+    cluster2_size: number;
+    significant_count: number;
+    top_variables: string[];
+    top_racks: string[];
+    top_features: Record<string, unknown>[];
+}
+
+export async function compareAnalyses(
+    analysisA: AnalysisSummaryInput,
+    analysisB: AnalysisSummaryInput
+): Promise<InterpretationResponse> {
+    const response = await api.post<InterpretationResponse>('/compare-analyses', {
+        analysis_a: analysisA,
+        analysis_b: analysisB,
+    });
+    return response.data;
+}

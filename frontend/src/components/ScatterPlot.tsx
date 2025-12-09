@@ -159,7 +159,7 @@ export function ScatterPlot() {
             .enter().append('circle')
             .attr('cx', (d) => xScale(d.x))
             .attr('cy', (d) => yScale(d.y))
-            .attr('r', 5)
+            .attr('r', 4)
             .attr('fill', cluster1Color)
             .attr('stroke', '#fff')
             .attr('stroke-width', 1.5)
@@ -171,7 +171,7 @@ export function ScatterPlot() {
             .enter().append('circle')
             .attr('cx', (d) => xScale(d.x))
             .attr('cy', (d) => yScale(d.y))
-            .attr('r', 5)
+            .attr('r', 4)
             .attr('fill', cluster2Color)
             .attr('stroke', '#fff')
             .attr('stroke-width', 1.5)
@@ -201,7 +201,7 @@ export function ScatterPlot() {
             <Box px={4} py={3} borderBottom="1px solid" borderColor="#e0e0e0" flexShrink={0}>
                 <HStack justify="space-between" align="center">
                     <Text fontSize="sm" fontWeight="600" color="#333">
-                        Embedding Space
+                        Scatter Plot
                     </Text>
                     {/* Legend */}
                     <HStack spacing={4}>

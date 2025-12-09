@@ -228,7 +228,7 @@ export function Sidebar({ onExecute, isLoading }: SidebarProps) {
                             loadingText="Computing..."
                             fontWeight="500"
                         >
-                            Execute Analysis
+                            Execute
                         </Button>
                     </Box>
                 </VStack>

@@ -17,6 +17,7 @@ from models import (
     ComputeEmbeddingRequest, ComputeEmbeddingResponse,
     ClusterAnalysisRequest, ClusterAnalysisResponse,
     InterpretationRequest, InterpretationResponse,
+    CompareRequest, CompareResponse,
     ConfigResponse, ClassWeight, FeatureImportance, StatisticalResult
 )
 from data_loader import DataLoader, VARIABLES, GRID_SHAPE, index_to_label, label_to_index
@@ -219,6 +220,36 @@ async def interpret_clusters(request: InterpretationRequest):
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "data_loaded": data_loader.tensor_X is not None}
+
+
+@app.post("/api/compare-analyses", response_model=CompareResponse)
+async def compare_analyses(request: CompareRequest):
+    """Compare two saved analyses using AI."""
+    try:
+        analysis_a = {
+            'cluster1_size': request.analysis_a.cluster1_size,
+            'cluster2_size': request.analysis_a.cluster2_size,
+            'summary': {
+                'significant_count': request.analysis_a.significant_count,
+                'top_variables': request.analysis_a.top_variables,
+                'top_racks': request.analysis_a.top_racks,
+            },
+            'top_features': request.analysis_a.top_features,
+        }
+        analysis_b = {
+            'cluster1_size': request.analysis_b.cluster1_size,
+            'cluster2_size': request.analysis_b.cluster2_size,
+            'summary': {
+                'significant_count': request.analysis_b.significant_count,
+                'top_variables': request.analysis_b.top_variables,
+                'top_racks': request.analysis_b.top_racks,
+            },
+            'top_features': request.analysis_b.top_features,
+        }
+        result = ai_interpreter.compare_analyses(analysis_a, analysis_b)
+        return CompareResponse(sections=result.get('sections', []))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

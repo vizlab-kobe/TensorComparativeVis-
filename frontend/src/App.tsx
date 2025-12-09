@@ -256,7 +256,7 @@ function Dashboard() {
                     py={2}
                     _selected={{ color: '#555', borderColor: '#555' }}
                   >
-                    Cluster Summary
+                    Feature Contribution Ranking
                   </Tab>
                   <Tab
                     fontSize="xs"

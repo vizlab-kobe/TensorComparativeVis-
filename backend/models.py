@@ -87,6 +87,27 @@ class InterpretationResponse(BaseModel):
     sections: List[InterpretationSection]
 
 
+class AnalysisSummary(BaseModel):
+    """Summary of a saved analysis for comparison."""
+    cluster1_size: int
+    cluster2_size: int
+    significant_count: int
+    top_variables: List[str]
+    top_racks: List[str]
+    top_features: List[Dict[str, Any]]
+
+
+class CompareRequest(BaseModel):
+    """Request to compare two analyses."""
+    analysis_a: AnalysisSummary
+    analysis_b: AnalysisSummary
+
+
+class CompareResponse(BaseModel):
+    """Response containing comparison result."""
+    sections: List[InterpretationSection]
+
+
 class ConfigResponse(BaseModel):
     """Application configuration."""
     variables: List[str]

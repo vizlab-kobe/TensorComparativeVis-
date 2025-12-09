@@ -2,6 +2,7 @@
  * AI Interpretation - Enhanced with History and Compare tabs
  * Structured output with section cards and keyword highlighting
  */
+import React from 'react';
 import {
     Box,
     VStack,
@@ -306,6 +307,8 @@ function HistoryItem({
 // Compare Tab Content
 function CompareTab() {
     const { analysisHistory, selectedHistoryIds, clearHistorySelection } = useDashboardStore();
+    const [comparisonResult, setComparisonResult] = React.useState<InterpretationSection[] | null>(null);
+    const [isComparing, setIsComparing] = React.useState(false);
 
     const selectedAnalyses = analysisHistory.filter((a) =>
         selectedHistoryIds.includes(a.id)
@@ -323,6 +326,9 @@ function CompareTab() {
 
     const [analysis1, analysis2] = selectedAnalyses;
 
+    // Check if same base cluster (Cluster 1)
+    const sameBaseCluster = analysis1.cluster1_size === analysis2.cluster1_size;
+
     // Find common and different features
     const features1 = new Set(analysis1.top_features.slice(0, 10).map(f => `${f.rack}-${f.variable}`));
     const features2 = new Set(analysis2.top_features.slice(0, 10).map(f => `${f.rack}-${f.variable}`));
@@ -334,15 +340,64 @@ function CompareTab() {
         return new Date(date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
     };
 
+    const handleAnalyzeDifference = async () => {
+        setIsComparing(true);
+        try {
+            const { compareAnalyses } = await import('../api/client');
+            const result = await compareAnalyses(
+                {
+                    cluster1_size: analysis1.cluster1_size,
+                    cluster2_size: analysis1.cluster2_size,
+                    significant_count: analysis1.summary.significant_count,
+                    top_variables: analysis1.summary.top_variables,
+                    top_racks: analysis1.summary.top_racks,
+                    top_features: analysis1.top_features.slice(0, 10).map(f => ({
+                        rack: f.rack,
+                        variable: f.variable,
+                        score: f.score,
+                        mean_diff: f.mean_diff,
+                    })),
+                },
+                {
+                    cluster1_size: analysis2.cluster1_size,
+                    cluster2_size: analysis2.cluster2_size,
+                    significant_count: analysis2.summary.significant_count,
+                    top_variables: analysis2.summary.top_variables,
+                    top_racks: analysis2.summary.top_racks,
+                    top_features: analysis2.top_features.slice(0, 10).map(f => ({
+                        rack: f.rack,
+                        variable: f.variable,
+                        score: f.score,
+                        mean_diff: f.mean_diff,
+                    })),
+                }
+            );
+            setComparisonResult(result.sections);
+        } catch (error) {
+            console.error('Compare analysis error:', error);
+        } finally {
+            setIsComparing(false);
+        }
+    };
+
     return (
         <Box flex="1" overflow="auto" p={3}>
             <VStack spacing={3} align="stretch">
                 <HStack justify="space-between">
                     <Text fontSize="xs" fontWeight="600" color={COLORS.text}>Comparison</Text>
-                    <Button size="xs" variant="ghost" onClick={clearHistorySelection}>
+                    <Button size="xs" variant="ghost" onClick={() => { clearHistorySelection(); setComparisonResult(null); }}>
                         Clear Selection
                     </Button>
                 </HStack>
+
+                {/* Base Cluster Indicator */}
+                {sameBaseCluster && (
+                    <Box p={2} bg="blue.50" borderRadius="4px" border="1px solid" borderColor="blue.200">
+                        <Text fontSize="10px" color="blue.700">
+                            ✓ 同一基準クラスター（赤: {analysis1.cluster1_size} pts）を使用
+                        </Text>
+                    </Box>
+                )}
 
                 {/* Overview */}
                 <Grid templateColumns="1fr 1fr" gap={2}>
@@ -405,39 +460,48 @@ function CompareTab() {
 
                 <Divider />
 
-                {/* Interpretations Side by Side */}
+                {/* AI Comparison Analysis */}
                 <Box>
-                    <Text fontSize="11px" fontWeight="600" color={COLORS.text} mb={2}>AI Interpretations</Text>
-                    <Grid templateColumns="1fr 1fr" gap={2}>
-                        <GridItem>
-                            <VStack spacing={2} align="stretch">
-                                {analysis1.interpretation.map((section, i) => (
-                                    <Box key={i} p={2} bg="gray.50" borderRadius="4px" fontSize="10px">
-                                        <Text fontWeight="600" color={getSectionColor(section.title)} mb={1}>
-                                            {section.title}
-                                        </Text>
-                                        <Text color={COLORS.textSecondary} lineHeight="1.5">
-                                            {section.text.slice(0, 150)}...
-                                        </Text>
-                                    </Box>
-                                ))}
-                            </VStack>
-                        </GridItem>
-                        <GridItem>
-                            <VStack spacing={2} align="stretch">
-                                {analysis2.interpretation.map((section, i) => (
-                                    <Box key={i} p={2} bg="gray.50" borderRadius="4px" fontSize="10px">
-                                        <Text fontWeight="600" color={getSectionColor(section.title)} mb={1}>
-                                            {section.title}
-                                        </Text>
-                                        <Text color={COLORS.textSecondary} lineHeight="1.5">
-                                            {section.text.slice(0, 150)}...
-                                        </Text>
-                                    </Box>
-                                ))}
-                            </VStack>
-                        </GridItem>
-                    </Grid>
+                    <HStack justify="space-between" mb={2}>
+                        <Text fontSize="11px" fontWeight="600" color={COLORS.text}>AI Comparison Analysis</Text>
+                        <Button
+                            size="xs"
+                            colorScheme="blue"
+                            onClick={handleAnalyzeDifference}
+                            isLoading={isComparing}
+                            loadingText="Analyzing..."
+                        >
+                            Analyze Difference
+                        </Button>
+                    </HStack>
+
+                    {comparisonResult ? (
+                        <VStack spacing={2} align="stretch">
+                            {comparisonResult.map((section, i) => (
+                                <Box
+                                    key={i}
+                                    p={3}
+                                    bg="gray.50"
+                                    borderRadius="4px"
+                                    borderLeft="3px solid"
+                                    borderLeftColor={getSectionColor(section.title)}
+                                >
+                                    <Text fontSize="11px" fontWeight="600" color={getSectionColor(section.title)} mb={1}>
+                                        {section.title}
+                                    </Text>
+                                    <Text fontSize="11px" color={COLORS.textSecondary} lineHeight="1.6">
+                                        {renderHighlightedText(section.text)}
+                                    </Text>
+                                </Box>
+                            ))}
+                        </VStack>
+                    ) : (
+                        <Box p={3} bg="gray.50" borderRadius="4px" textAlign="center">
+                            <Text fontSize="10px" color={COLORS.textMuted}>
+                                Click "Analyze Difference" to get AI-powered comparison insights
+                            </Text>
+                        </Box>
+                    )}
                 </Box>
             </VStack>
         </Box>
@@ -470,7 +534,7 @@ export function AIInterpretation() {
             <Box px={3} py={2} borderBottom="1px solid" borderColor={COLORS.border} flexShrink={0}>
                 <HStack justify="space-between" align="center">
                     <Text fontSize="sm" fontWeight="600" color={COLORS.text}>
-                        AI Interpretation
+                        AI Analysis Summary
                     </Text>
                     <HStack spacing={3}>
                         <HStack spacing={1}>
