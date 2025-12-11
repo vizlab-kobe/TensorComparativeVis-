@@ -394,7 +394,7 @@ function CompareTab() {
                 {sameBaseCluster && (
                     <Box p={2} bg="blue.50" borderRadius="4px" border="1px solid" borderColor="blue.200">
                         <Text fontSize="10px" color="blue.700">
-                            ✓ 同一基準クラスター（赤: {analysis1.cluster1_size} pts）を使用
+                            ✓ Same base cluster (Red: {analysis1.cluster1_size} pts)
                         </Text>
                     </Box>
                 )}
