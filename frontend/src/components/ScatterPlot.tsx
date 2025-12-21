@@ -137,47 +137,51 @@ export function ScatterPlot() {
         const cluster1Set = new Set(clusters.cluster1 || []);
         const cluster2Set = new Set(clusters.cluster2 || []);
 
-        const unselectedPoints = embeddingData.filter(
-            (d) => !cluster1Set.has(d.index) && !cluster2Set.has(d.index)
-        );
+        // Helper: Draw ellipse around cluster points (with semi-transparent fill)
+        const drawClusterEllipse = (points: EmbeddingPoint[], color: string) => {
+            if (points.length < 2) return;
+
+            // Calculate bounding ellipse
+            const xCoords = points.map(d => xScale(d.x));
+            const yCoords = points.map(d => yScale(d.y));
+
+            const cx = (Math.min(...xCoords) + Math.max(...xCoords)) / 2;
+            const cy = (Math.min(...yCoords) + Math.max(...yCoords)) / 2;
+
+            // Use half the range plus padding for radii
+            const rx = (Math.max(...xCoords) - Math.min(...xCoords)) / 2 + 25;
+            const ry = (Math.max(...yCoords) - Math.min(...yCoords)) / 2 + 25;
+
+            g.append('ellipse')
+                .attr('cx', cx)
+                .attr('cy', cy)
+                .attr('rx', rx)
+                .attr('ry', ry)
+                .attr('fill', color)
+                .attr('fill-opacity', 0.12)
+                .attr('stroke', color)
+                .attr('stroke-width', 2)
+                .attr('opacity', 0.9);
+        };
+
+        // Draw ellipses FIRST (as background layer)
         const cluster1Points = embeddingData.filter((d) => cluster1Set.has(d.index));
         const cluster2Points = embeddingData.filter((d) => cluster2Set.has(d.index));
+        drawClusterEllipse(cluster1Points, cluster1Color);
+        drawClusterEllipse(cluster2Points, cluster2Color);
 
-        // Unselected points - smaller size
-        g.selectAll('.point-unselected')
-            .data(unselectedPoints)
+        // THEN draw ALL points on top with their original label colors
+        g.selectAll('.point')
+            .data(embeddingData)
             .enter().append('circle')
+            .attr('class', 'point')
             .attr('cx', (d) => xScale(d.x))
             .attr('cy', (d) => yScale(d.y))
             .attr('r', 3)
             .attr('fill', (d) => classColors[d.label % classColors.length])
             .attr('stroke', 'white')
             .attr('stroke-width', 0.5)
-            .attr('opacity', 0.8);
-
-        // Cluster 1 points (tab10 red) - slightly larger for selection
-        g.selectAll('.point-c1')
-            .data(cluster1Points)
-            .enter().append('circle')
-            .attr('cx', (d) => xScale(d.x))
-            .attr('cy', (d) => yScale(d.y))
-            .attr('r', 4)
-            .attr('fill', cluster1Color)
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1.5)
-            .attr('opacity', 1);
-
-        // Cluster 2 points (tab10 blue) - slightly larger for selection
-        g.selectAll('.point-c2')
-            .data(cluster2Points)
-            .enter().append('circle')
-            .attr('cx', (d) => xScale(d.x))
-            .attr('cy', (d) => yScale(d.y))
-            .attr('r', 4)
-            .attr('fill', cluster2Color)
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1.5)
-            .attr('opacity', 1);
+            .attr('opacity', 0.9);
 
         // Brush
         const brush = d3.brush<EmbeddingPoint>()

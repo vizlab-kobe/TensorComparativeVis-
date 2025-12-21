@@ -63,6 +63,22 @@ export function TimeSeriesPlot() {
         const svg = d3.select(svgRef.current);
         svg.selectAll('*').remove();
 
+        // Create or select tooltip
+        let tooltip = d3.select('body').select('.ts-tooltip');
+        if (tooltip.empty()) {
+            tooltip = d3.select('body').append('div')
+                .attr('class', 'ts-tooltip')
+                .style('position', 'absolute')
+                .style('background', 'rgba(0,0,0,0.8)')
+                .style('color', 'white')
+                .style('padding', '8px 12px')
+                .style('border-radius', '4px')
+                .style('font-size', '11px')
+                .style('pointer-events', 'none')
+                .style('opacity', 0)
+                .style('z-index', 9999);
+        }
+
         const cluster1Data = feature.cluster1_time.map((t, i) => ({
             time: new Date(t),
             value: feature.cluster1_data[i],
@@ -124,7 +140,20 @@ export function TimeSeriesPlot() {
             .attr('fill', COLORS.cluster1)
             .attr('stroke', 'white')
             .attr('stroke-width', 0.5)
-            .attr('opacity', 0.8);
+            .attr('opacity', 0.8)
+            .style('cursor', 'pointer')
+            .on('mouseover', function (event, d) {
+                d3.select(this).attr('r', 4).attr('stroke-width', 1.5);
+                tooltip
+                    .style('opacity', 1)
+                    .html(`<strong>Cluster 1</strong><br/>Time: ${d3.timeFormat('%Y-%m-%d %H:%M')(d.time)}<br/>Value: ${d.value.toFixed(3)}`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function () {
+                d3.select(this).attr('r', 2).attr('stroke-width', 0.5);
+                tooltip.style('opacity', 0);
+            });
 
         g.selectAll('.p2')
             .data(cluster2Data)
@@ -135,7 +164,20 @@ export function TimeSeriesPlot() {
             .attr('fill', COLORS.cluster2)
             .attr('stroke', 'white')
             .attr('stroke-width', 0.5)
-            .attr('opacity', 0.8);
+            .attr('opacity', 0.8)
+            .style('cursor', 'pointer')
+            .on('mouseover', function (event, d) {
+                d3.select(this).attr('r', 4).attr('stroke-width', 1.5);
+                tooltip
+                    .style('opacity', 1)
+                    .html(`<strong>Cluster 2</strong><br/>Time: ${d3.timeFormat('%Y-%m-%d %H:%M')(d.time)}<br/>Value: ${d.value.toFixed(3)}`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function () {
+                d3.select(this).attr('r', 2).attr('stroke-width', 0.5);
+                tooltip.style('opacity', 0);
+            });
 
         // Axes
         const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(d3.timeFormat('%Y-%m') as any);

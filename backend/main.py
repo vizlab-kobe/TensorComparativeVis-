@@ -163,9 +163,9 @@ async def analyze_clusters(request: ClusterAnalysisRequest):
             rack_idx = factor['rack_idx']
             var_idx = factor['var_idx']
             
-            # Get cluster data
-            cluster1_data = data_loader.tensor_X[cluster1_array, rack_idx, var_idx].tolist()
-            cluster2_data = data_loader.tensor_X[cluster2_array, rack_idx, var_idx].tolist()
+            # Get cluster data - use original_data (not standardized) for time series visualization
+            cluster1_data = data_loader.original_data[cluster1_array, rack_idx, var_idx].tolist()
+            cluster2_data = data_loader.original_data[cluster2_array, rack_idx, var_idx].tolist()
             
             # Statistical analysis
             stat_result = evaluate_statistical_significance(

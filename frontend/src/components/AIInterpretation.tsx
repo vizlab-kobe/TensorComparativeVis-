@@ -40,10 +40,10 @@ const COLORS = {
 };
 
 const SECTION_COLORS: Record<string, string> = {
-    'key findings': COLORS.cluster1,
+    'key findings': '#2d9596',      // teal (avoid red)
     'pattern analysis': COLORS.green,
-    'statistical summary': COLORS.cluster2,
-    'caveats': COLORS.purple,
+    'statistical summary': '#9467bd', // purple (avoid blue)
+    'caveats': '#8c564b',           // brown
 };
 
 function getSectionColor(title: string): string {
@@ -102,7 +102,9 @@ function SummaryTab() {
     const { interpretation, isLoading, clusters, saveCurrentAnalysis, topFeatures } = useDashboardStore();
     const hasBothClusters = clusters.cluster1 && clusters.cluster2;
 
-    if (isLoading) {
+    // Only show loading spinner if clusters are selected AND loading (i.e., generating interpretation)
+    // Don't show loading during embedding computation (which resets clusters)
+    if (isLoading && hasBothClusters) {
         return (
             <Box flex="1" display="flex" alignItems="center" justifyContent="center">
                 <VStack spacing={2}>
@@ -472,7 +474,7 @@ function CompareTab() {
 
 // Main Component
 export function AIInterpretation() {
-    const { clusters, interpretationTab, setInterpretationTab } = useDashboardStore();
+    const { interpretationTab, setInterpretationTab } = useDashboardStore();
     const panelRef = React.useRef<HTMLDivElement>(null);
 
     const tabIndex = { summary: 0, history: 1, compare: 2 }[interpretationTab];
@@ -500,21 +502,7 @@ export function AIInterpretation() {
                     <Text fontSize="sm" fontWeight="600" color={COLORS.text}>
                         AI Analysis Summary
                     </Text>
-                    <HStack spacing={3}>
-                        <HStack spacing={1}>
-                            <Circle size="8px" bg={COLORS.cluster1} />
-                            <Text fontSize="10px" color={COLORS.textMuted}>
-                                {clusters.cluster1?.length || 0}
-                            </Text>
-                        </HStack>
-                        <HStack spacing={1}>
-                            <Circle size="8px" bg={COLORS.cluster2} />
-                            <Text fontSize="10px" color={COLORS.textMuted}>
-                                {clusters.cluster2?.length || 0}
-                            </Text>
-                        </HStack>
-                        <ScreenshotButton targetRef={panelRef} filename="ai_analysis" />
-                    </HStack>
+                    <ScreenshotButton targetRef={panelRef} filename="ai_analysis" />
                 </HStack>
             </Box>
 
