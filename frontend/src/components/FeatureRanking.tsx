@@ -115,14 +115,41 @@ export function FeatureRanking() {
             .attr('font-weight', (_, i) => i < 3 ? '600' : '400')
             .text(d => d.label);
 
-        // Value labels (on bars)
+        // Value labels (on bars) - position inside if bar is too long
+        const chartRightEdge = innerWidth - 50; // Leave margin for labels
         bars.append('text')
-            .attr('x', d => d.value >= 0 ? xScale(d.value) + 4 : xScale(d.value) - 4)
+            .attr('x', d => {
+                const barEnd = xScale(d.value);
+                const isPositive = d.value >= 0;
+                // Check if label would go outside chart
+                if (isPositive && barEnd > chartRightEdge) {
+                    return barEnd - 6; // Inside bar (right-aligned)
+                } else if (!isPositive && barEnd < 50) {
+                    return barEnd + 6; // Inside bar (left-aligned)
+                }
+                // Normal: outside bar
+                return isPositive ? barEnd + 4 : barEnd - 4;
+            })
             .attr('y', barHeight / 2)
-            .attr('text-anchor', d => d.value >= 0 ? 'start' : 'end')
+            .attr('text-anchor', d => {
+                const barEnd = xScale(d.value);
+                const isPositive = d.value >= 0;
+                if (isPositive && barEnd > chartRightEdge) return 'end';
+                if (!isPositive && barEnd < 50) return 'start';
+                return isPositive ? 'start' : 'end';
+            })
             .attr('dominant-baseline', 'middle')
-            .attr('fill', COLORS.textMuted)
+            .attr('fill', d => {
+                const barEnd = xScale(d.value);
+                const isPositive = d.value >= 0;
+                // White text when inside bar
+                if ((isPositive && barEnd > chartRightEdge) || (!isPositive && barEnd < 50)) {
+                    return '#fff';
+                }
+                return COLORS.textMuted;
+            })
             .attr('font-size', '9px')
+            .attr('font-weight', '500')
             .text(d => d.value.toFixed(2));
 
         // Significance indicator
