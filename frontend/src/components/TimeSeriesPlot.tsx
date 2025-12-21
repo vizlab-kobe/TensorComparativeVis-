@@ -7,6 +7,7 @@ import { Box, HStack, IconButton, Text, Circle, VStack } from '@chakra-ui/react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import * as d3 from 'd3';
 import { useDashboardStore } from '../store/dashboardStore';
+import { ScreenshotButton } from './ScreenshotButton';
 
 // Academic color palette - tab10 for clusters
 const COLORS = {
@@ -20,6 +21,7 @@ const COLORS = {
 
 export function TimeSeriesPlot() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [dimensions, setDimensions] = useState({ width: 400, height: 250 });
     const { topFeatures, currentFeatureIndex, setCurrentFeatureIndex } = useDashboardStore();
@@ -186,7 +188,7 @@ export function TimeSeriesPlot() {
 
     return (
         <Box
-            ref={containerRef}
+            ref={(el) => { panelRef.current = el; containerRef.current = el; }}
             h="100%"
             bg="white"
             borderRadius="4px"
@@ -219,6 +221,7 @@ export function TimeSeriesPlot() {
                             <Circle size="8px" bg={COLORS.cluster2} />
                             <Text fontSize="10px" color="#888">Cluster 2</Text>
                         </HStack>
+                        <ScreenshotButton targetRef={panelRef} filename="time_series" />
                     </HStack>
                 </HStack>
             </Box>

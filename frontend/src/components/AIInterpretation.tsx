@@ -25,6 +25,7 @@ import {
 import { useDashboardStore } from '../store/dashboardStore';
 import type { SavedAnalysis } from '../store/dashboardStore';
 import type { InterpretationSection } from '../types';
+import { ScreenshotButton } from './ScreenshotButton';
 
 // Tab10 color palette for clusters
 const COLORS = {
@@ -53,50 +54,11 @@ function getSectionColor(title: string): string {
     return COLORS.textMuted;
 }
 
-// Render text with bracketed keywords highlighted
-function renderHighlightedText(text: string, highlights: string[]) {
-    if (!highlights || highlights.length === 0) {
-        // Parse [bracketed] keywords from text
-        const parts = text.split(/(\[[^\]]+\])/g);
-        return parts.map((part, i) => {
-            if (part.startsWith('[') && part.endsWith(']')) {
-                return (
-                    <Text as="span" key={i} fontWeight="600" color={COLORS.cluster1}>
-                        {part.slice(1, -1)}
-                    </Text>
-                );
-            }
-            return <Text as="span" key={i}>{part}</Text>;
-        });
-    }
-
-    // Use provided highlights
-    let result = text;
-    highlights.forEach((h) => {
-        result = result.replace(new RegExp(`\\[${h}\\]`, 'g'), `__HIGHLIGHT_START__${h}__HIGHLIGHT_END__`);
-    });
-
-    const parts = result.split(/(__HIGHLIGHT_START__|__HIGHLIGHT_END__)/g).filter(Boolean);
-    let inHighlight = false;
-
-    return parts.map((part, i) => {
-        if (part === '__HIGHLIGHT_START__') {
-            inHighlight = true;
-            return null;
-        }
-        if (part === '__HIGHLIGHT_END__') {
-            inHighlight = false;
-            return null;
-        }
-        if (inHighlight) {
-            return (
-                <Text as="span" key={i} fontWeight="600" color={COLORS.cluster1}>
-                    {part}
-                </Text>
-            );
-        }
-        return <Text as="span" key={i}>{part}</Text>;
-    });
+// Render text - remove brackets but display as plain text (no highlighting)
+function renderPlainText(text: string) {
+    // Remove brackets but keep the content
+    const cleanedText = text.replace(/\[([^\]]+)\]/g, '$1');
+    return cleanedText;
 }
 
 // Section Card Component
@@ -129,7 +91,7 @@ function SectionCard({ section }: { section: InterpretationSection }) {
                 color={COLORS.text}
                 lineHeight="1.7"
             >
-                {renderHighlightedText(section.text, section.highlights)}
+                {renderPlainText(section.text)}
             </Text>
         </Box>
     );
@@ -490,7 +452,7 @@ function CompareTab() {
                                         {section.title}
                                     </Text>
                                     <Text fontSize="11px" color={COLORS.textSecondary} lineHeight="1.6">
-                                        {renderHighlightedText(section.text)}
+                                        {renderPlainText(section.text)}
                                     </Text>
                                 </Box>
                             ))}
@@ -511,6 +473,7 @@ function CompareTab() {
 // Main Component
 export function AIInterpretation() {
     const { clusters, interpretationTab, setInterpretationTab } = useDashboardStore();
+    const panelRef = React.useRef<HTMLDivElement>(null);
 
     const tabIndex = { summary: 0, history: 1, compare: 2 }[interpretationTab];
 
@@ -521,6 +484,7 @@ export function AIInterpretation() {
 
     return (
         <Box
+            ref={panelRef}
             h="100%"
             bg="white"
             borderRadius="4px"
@@ -549,6 +513,7 @@ export function AIInterpretation() {
                                 {clusters.cluster2?.length || 0}
                             </Text>
                         </HStack>
+                        <ScreenshotButton targetRef={panelRef} filename="ai_analysis" />
                     </HStack>
                 </HStack>
             </Box>

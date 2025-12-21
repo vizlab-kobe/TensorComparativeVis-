@@ -7,6 +7,7 @@ import { Box, Text, Spinner, HStack, Circle } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useDashboardStore } from '../store/dashboardStore';
 import type { EmbeddingPoint } from '../types';
+import { ScreenshotButton } from './ScreenshotButton';
 
 // Tab10 colors for clusters (matplotlib tab10 palette)
 const COLORS = {
@@ -19,6 +20,7 @@ const COLORS = {
 
 export function ScatterPlot() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [dimensions, setDimensions] = useState({ width: 400, height: 300 });
 
@@ -187,7 +189,7 @@ export function ScatterPlot() {
 
     return (
         <Box
-            ref={containerRef}
+            ref={(el) => { panelRef.current = el; containerRef.current = el; }}
             h="100%"
             bg="white"
             borderRadius="4px"
@@ -211,6 +213,7 @@ export function ScatterPlot() {
                                 <Text fontSize="10px" color="#888">FY{2014 + i}</Text>
                             </HStack>
                         ))}
+                        <ScreenshotButton targetRef={panelRef} filename="scatter_plot" />
                     </HStack>
                 </HStack>
             </Box>

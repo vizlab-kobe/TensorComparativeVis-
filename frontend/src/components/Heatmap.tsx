@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Box, Text, Center, Select, HStack } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useDashboardStore } from '../store/dashboardStore';
+import { ScreenshotButton } from './ScreenshotButton';
 
 const COLS = 24;
 const ROWS = 36;
@@ -18,6 +19,7 @@ const COLORS = {
 
 export function Heatmap() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [dimensions, setDimensions] = useState({ width: 400, height: 300 });
@@ -220,7 +222,7 @@ export function Heatmap() {
     }
 
     return (
-        <Box ref={containerRef} h="100%" display="flex" flexDirection="column" overflow="hidden">
+        <Box ref={(el) => { panelRef.current = el; containerRef.current = el; }} h="100%" display="flex" flexDirection="column" overflow="hidden">
             {/* Compact header with variable selector */}
             <Box px={3} py={1} borderBottom="1px solid" borderColor="#e0e0e0" flexShrink={0}>
                 <HStack spacing={2}>
@@ -237,6 +239,7 @@ export function Heatmap() {
                             <option key={i} value={i}>{v}</option>
                         ))}
                     </Select>
+                    <ScreenshotButton targetRef={panelRef} filename="heatmap" />
                 </HStack>
             </Box>
 

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Box, Text, Center, HStack, Circle } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { useDashboardStore } from '../store/dashboardStore';
+import { ScreenshotButton } from './ScreenshotButton';
 
 // Tab10 color palette for clusters
 const COLORS = {
@@ -18,6 +19,7 @@ const COLORS = {
 
 export function FeatureRanking() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [dimensions, setDimensions] = useState({ width: 400, height: 300 });
     const { topFeatures } = useDashboardStore();
@@ -162,7 +164,7 @@ export function FeatureRanking() {
     }
 
     return (
-        <Box ref={containerRef} h="100%" display="flex" flexDirection="column" overflow="hidden">
+        <Box ref={(el) => { panelRef.current = el; containerRef.current = el; }} h="100%" display="flex" flexDirection="column" overflow="hidden">
             {/* Header with legend only - no title */}
             <Box px={4} py={3} borderBottom="1px solid" borderColor="#e0e0e0" flexShrink={0}>
                 <HStack spacing={4}>
@@ -174,6 +176,7 @@ export function FeatureRanking() {
                         <Circle size="8px" bg={COLORS.negative} />
                         <Text fontSize="10px" color="#888">Higher in C2</Text>
                     </HStack>
+                    <ScreenshotButton targetRef={panelRef} filename="feature_ranking" />
                 </HStack>
             </Box>
 
