@@ -21,6 +21,7 @@ export function ScreenshotButton({ targetRef, filename = 'screenshot' }: Screens
         const originalHeight = element.style.height;
         const originalMaxHeight = element.style.maxHeight;
         const originalOverflow = element.style.overflow;
+        const originalPosition = element.style.position;
 
         try {
             // Temporarily expand to show all content
@@ -29,14 +30,16 @@ export function ScreenshotButton({ targetRef, filename = 'screenshot' }: Screens
             element.style.overflow = 'visible';
 
             // Wait for reflow
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 150));
 
             const canvas = await html2canvas(element, {
                 backgroundColor: '#ffffff',
                 scale: 2, // Higher resolution
                 logging: false,
+                useCORS: true,
+                allowTaint: true,
+                width: element.scrollWidth,
                 height: element.scrollHeight,
-                windowHeight: element.scrollHeight,
             });
 
             const link = document.createElement('a');
@@ -50,6 +53,7 @@ export function ScreenshotButton({ targetRef, filename = 'screenshot' }: Screens
             element.style.height = originalHeight;
             element.style.maxHeight = originalMaxHeight;
             element.style.overflow = originalOverflow;
+            element.style.position = originalPosition;
         }
     };
 

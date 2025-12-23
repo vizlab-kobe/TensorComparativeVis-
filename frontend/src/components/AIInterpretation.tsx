@@ -220,12 +220,10 @@ function HistoryItem({
     analysis,
     isSelected,
     onToggle,
-    formatTime,
 }: {
     analysis: SavedAnalysis;
     isSelected: boolean;
     onToggle: () => void;
-    formatTime: (date: Date) => string;
 }) {
     return (
         <Box
@@ -242,9 +240,6 @@ function HistoryItem({
                 <Checkbox isChecked={isSelected} onChange={onToggle} size="sm" />
                 <VStack align="start" spacing={0} flex="1">
                     <HStack spacing={2}>
-                        <Text fontSize="xs" fontWeight="500" color={COLORS.text}>
-                            {formatTime(analysis.timestamp)}
-                        </Text>
                         <HStack spacing={1}>
                             <Circle size="6px" bg={COLORS.cluster1} />
                             <Text fontSize="10px" color={COLORS.textMuted}>{analysis.cluster1_size}</Text>
@@ -299,10 +294,6 @@ function CompareTab() {
     const common = [...features1].filter(f => features2.has(f));
     const onlyIn1 = [...features1].filter(f => !features2.has(f));
     const onlyIn2 = [...features2].filter(f => !features1.has(f));
-
-    const formatTime = (date: Date) => {
-        return new Date(date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    };
 
     const handleAnalyzeDifference = async () => {
         setIsComparing(true);
@@ -367,7 +358,7 @@ function CompareTab() {
                 <Grid templateColumns="1fr 1fr" gap={2}>
                     <GridItem>
                         <Box p={2} bg="gray.50" borderRadius="4px" border="1px solid" borderColor={COLORS.border}>
-                            <Text fontSize="10px" color={COLORS.textMuted}>Analysis A ({formatTime(analysis1.timestamp)})</Text>
+                            <Text fontSize="10px" color={COLORS.textMuted}>Analysis A</Text>
                             <HStack spacing={1} mt={1}>
                                 <Circle size="6px" bg={COLORS.cluster1} />
                                 <Text fontSize="11px">{analysis1.cluster1_size}</Text>
@@ -378,7 +369,7 @@ function CompareTab() {
                     </GridItem>
                     <GridItem>
                         <Box p={2} bg="gray.50" borderRadius="4px" border="1px solid" borderColor={COLORS.border}>
-                            <Text fontSize="10px" color={COLORS.textMuted}>Analysis B ({formatTime(analysis2.timestamp)})</Text>
+                            <Text fontSize="10px" color={COLORS.textMuted}>Analysis B</Text>
                             <HStack spacing={1} mt={1}>
                                 <Circle size="6px" bg={COLORS.cluster1} />
                                 <Text fontSize="11px">{analysis2.cluster1_size}</Text>
@@ -468,7 +459,7 @@ function CompareTab() {
                     )}
                 </Box>
             </VStack>
-        </Box>
+        </Box >
     );
 }
 

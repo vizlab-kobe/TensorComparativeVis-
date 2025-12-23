@@ -136,9 +136,11 @@ export function Heatmap() {
             .attr('class', 'x-label')
             .attr('x', (d) => d * cellWidth + cellWidth / 2)
             .attr('y', height + 15)
+            .attr('dy', '0.35em')
             .attr('text-anchor', 'middle')
             .attr('fill', COLORS.textMuted)
             .attr('font-size', '9px')
+            .attr('font-family', 'Inter, -apple-system, sans-serif')
             .text((d) => String.fromCharCode(65 + d));
 
         // Y axis labels (every 6th row: 1, 7, 13, 19, 25, 31)
@@ -149,10 +151,11 @@ export function Heatmap() {
             .attr('class', 'y-label')
             .attr('x', -4)
             .attr('y', (d) => d * cellHeight + cellHeight / 2)
+            .attr('dy', '0.35em')
             .attr('text-anchor', 'end')
-            .attr('dominant-baseline', 'middle')
             .attr('fill', COLORS.textMuted)
             .attr('font-size', '9px')
+            .attr('font-family', 'Inter, -apple-system, sans-serif')
             .text((d) => d + 1);
 
         // Cleanup tooltip on unmount

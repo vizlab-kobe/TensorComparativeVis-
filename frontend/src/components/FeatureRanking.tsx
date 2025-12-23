@@ -108,10 +108,11 @@ export function FeatureRanking() {
         bars.append('text')
             .attr('x', -8)
             .attr('y', barHeight / 2)
+            .attr('dy', '0.35em')
             .attr('text-anchor', 'end')
-            .attr('dominant-baseline', 'middle')
             .attr('fill', COLORS.text)
             .attr('font-size', '11px')
+            .attr('font-family', 'Inter, -apple-system, sans-serif')
             .attr('font-weight', (_, i) => i < 3 ? '600' : '400')
             .text(d => d.label);
 
@@ -131,6 +132,7 @@ export function FeatureRanking() {
                 return isPositive ? barEnd + 4 : barEnd - 4;
             })
             .attr('y', barHeight / 2)
+            .attr('dy', '0.35em')
             .attr('text-anchor', d => {
                 const barEnd = xScale(d.value);
                 const isPositive = d.value >= 0;
@@ -138,7 +140,6 @@ export function FeatureRanking() {
                 if (!isPositive && barEnd < 50) return 'start';
                 return isPositive ? 'start' : 'end';
             })
-            .attr('dominant-baseline', 'middle')
             .attr('fill', d => {
                 const barEnd = xScale(d.value);
                 const isPositive = d.value >= 0;
@@ -149,6 +150,7 @@ export function FeatureRanking() {
                 return COLORS.textMuted;
             })
             .attr('font-size', '9px')
+            .attr('font-family', 'Inter, -apple-system, sans-serif')
             .attr('font-weight', '500')
             .text(d => d.value.toFixed(2));
 
@@ -157,10 +159,11 @@ export function FeatureRanking() {
             .append('text')
             .attr('x', d => d.value >= 0 ? centerX - 4 : centerX + 4)
             .attr('y', barHeight / 2)
+            .attr('dy', '0.35em')
             .attr('text-anchor', d => d.value >= 0 ? 'end' : 'start')
-            .attr('dominant-baseline', 'middle')
             .attr('fill', d => d.value >= 0 ? COLORS.positive : COLORS.negative)
             .attr('font-size', '9px')
+            .attr('font-family', 'Inter, -apple-system, sans-serif')
             .attr('font-weight', '600')
             .text('*');
 
