@@ -62,7 +62,7 @@ COLORS = {
 
 # Initialize data loader and models
 data_loader = DataLoader(
-    data_dir=str(Path(__file__).parent.parent.parent / "dash-app" / "data" / "processed" / "HPC")
+    data_dir=str(Path(__file__).parent.parent / "data" / "processed" / "HPC")
 )
 
 # Global state for TULCA model (initialized on first request)

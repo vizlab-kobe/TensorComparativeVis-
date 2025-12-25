@@ -6,7 +6,7 @@ from pathlib import Path
 class DataLoader:
     """Loader for HPC tensor data files."""
     
-    def __init__(self, data_dir: str = "../dash-app/data/processed/HPC"):
+    def __init__(self, data_dir: str = "../data/processed/HPC"):
         self.data_dir = Path(data_dir)
         self._original_data = None
         self._time_axis = None
